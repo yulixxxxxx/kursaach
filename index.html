@@ -3,21 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация и Регистрация</title>
+    <title>Бегущая белка</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Авторизация и Регистрация</h1>
-    <form id="authForm">
-        <label for="username">Имя пользователя:</label>
-        <input type="text" id="username" required>
-
-        <label for="password">Пароль:</label>
-        <input type="password" id="password" required>
-
-        <button type="submit">Войти</button>
-    </form>
-
+    <div class="game-container">
+        <div id="game-over">
+            <h2>Игра окончена!</h2>
+            <p>Собрано орехов: <span id="final-nuts">0</span></p>
+            <p>Пройдено метров: <span id="final-meters">0</span></p>
+            <p>Нажмите пробел, чтобы начать снова</p>
+        </div>
+        <div id="stats">
+            <div>Орехи: <span id="nuts-count">0</span></div>
+            <div>Метры: <span id="meters-count">0</span></div>
+            <div>Время: <span id="time-count">0</span>с</div>
+        </div>
+        <div id="ground"></div>
+        <div id="squirrel" class="squirrel"></div>
+        <div id="obstacles-container"></div>
+        <div id="nuts-container"></div>
+        <div id="clouds-container"></div>
+    </div>
     <script src="index.js"></script>
 </body>
 </html>
