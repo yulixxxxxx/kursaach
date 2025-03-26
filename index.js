@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded'), () => {
     const squirrel = document.getElementById('squirrel');
     const obstaclesContainer = document.getElementById('obstacles-container');
     const nutsContainer = document.getElementById('nuts-container');
@@ -22,18 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let cloudInterval;
     let gameTimer;
     let distanceTimer;
-    
-    // Загрузка спрайта белки
+
     function loadSquirrelSprite() {
         const img = new Image();
-        img.src = 'https://w7.pngwing.com/pngs/726/778/png-transparent-scrat-sid-ice-age-fast-tony-others-photography-fauna-wildlife.png';
+        img.src = 'белка с орехом.png';
         img.onload = () => {
             squirrel.style.backgroundImage = `url('${img.src}')`;
-            squirrel.classList.add('running');
+            squirrel.style.backgroundSize = '240px 137px';
+            //squirrel.classList.add('running');
+        };
+        img.onerror = () => {
+            squirrel.style.backgroundColor = 'brown';
         };
     }
     
-    // Создаем облака
     function createClouds() {
         cloudInterval = setInterval(() => {
             if (isGameOver) return;
@@ -60,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     
-    // Обработка прыжка
     function jump() {
         if (isJumping || isGameOver) return;
         
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 600);
     }
     
-    // Создание препятствий (айсбергов)
     function createObstacle() {
         if (isGameOver) return;
         
@@ -92,17 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const obstacleRect = obstacle.getBoundingClientRect();
             const squirrelRect = squirrel.getBoundingClientRect();
             
-            // Проверка столкновения
             if (
                 squirrelRect.right > obstacleRect.left + 20 &&
                 squirrelRect.left < obstacleRect.right - 20 &&
                 squirrelRect.bottom > obstacleRect.top + 10
             ) {
-                gameOver();
+                //gameOver();
                 clearInterval(checkCollision);
             }
             
-            // Удаление препятствия, когда оно ушло за экран
             if (obstacleRect.right < 0) {
                 clearInterval(checkCollision);
                 obstacle.remove();
@@ -110,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10);
     }
     
-    // Создание орехов
     function createNut() {
         if (isGameOver) return;
         
@@ -129,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const nutRect = nut.getBoundingClientRect();
             const squirrelRect = squirrel.getBoundingClientRect();
             
-            // Проверка сбора ореха
             if (
                 squirrelRect.right > nutRect.left &&
                 squirrelRect.left < nutRect.right &&
@@ -141,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 nut.remove();
                 clearInterval(checkCollection);
                 
-                // Визуальный эффект сбора
                 const effect = document.createElement('div');
                 effect.textContent = '+1';
                 effect.style.position = 'absolute';
@@ -161,27 +156,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 0);
             }
             
-            // Удаление ореха, когда он ушел за экран
             if (nutRect.right < 0) {
                 clearInterval(checkCollection);
                 nut.remove();
             }
-        }, 10);
+        }, 20); // Проверка столкновений чаще (каждые 20ms)
     }
-    
-    // Обновление таймера
+
     function updateTimer() {
         secondsPassed++;
         timeCountDisplay.textContent = secondsPassed;
     }
     
-    // Обновление пройденного расстояния
     function updateDistance() {
         metersPassed += Math.floor(gameSpeed);
         metersCountDisplay.textContent = metersPassed;
     }
     
-    // Конец игры
     function gameOver() {
         isGameOver = true;
         isRunning = false;
@@ -197,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverDisplay.style.display = 'block';
     }
     
-    // Начало игры
     function startGame() {
         isGameOver = false;
         isRunning = true;
@@ -217,20 +207,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loadSquirrelSprite();
         
-        // Запуск генерации препятствий
+        // Препятствия с фиксированным интервалом (можно также сделать случайным)
         obstacleInterval = setInterval(createObstacle, 2500);
         
-        // Запуск генерации орехов
-        nutInterval = setInterval(createNut, 2000);
+        // Орехи со случайным интервалом
+        scheduleNutCreation();
         
-        // Запуск облаков
         createClouds();
         
-        // Запуск таймеров
         gameTimer = setInterval(updateTimer, 1000);
         distanceTimer = setInterval(updateDistance, 1000);
         
-        // Увеличение сложности
         const difficultyInterval = setInterval(() => {
             if (isGameOver) {
                 clearInterval(difficultyInterval);
@@ -246,31 +233,5 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nut-move').forEach(nut => {
                 nut.style.animationDuration = `${2000 / gameSpeed}ms`;
             });
-            
         }, 10000);
-    }
-    
-    // Обработка нажатия клавиш
-    document.addEventListener('keydown', (event) => {
-        if (event.code === 'Space') {
-            event.preventDefault();
-            if (!isGameOver && isRunning) {
-                jump();
-            } else if (isGameOver) {
-                startGame();
-            }
-        }
-    });
-    
-    // Обработка клика для мобильных устройств
-    document.addEventListener('click', () => {
-        if (!isGameOver && isRunning) {
-            jump();
-        } else if (isGameOver) {
-            startGame();
-        }
-    });
-    
-    // Начало игры при загрузке
-    startGame();
-});
+    }}
