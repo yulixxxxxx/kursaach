@@ -40,30 +40,21 @@ body {
 
 #squirrel {
     position: absolute;
-    width: 240px;
-    height: 137px;
+    width: 120px; /* Уменьшенный размер */
+    height: 68px; /* Уменьшенный размер */
     bottom: 50px;
     left: 50px;
-    background-size: 480px 80px;
+    background-size: contain; /* Чтобы изображение помещалось в новые размеры */
     background-repeat: no-repeat;
     z-index: 10;
     image-rendering: pixelated;
-}
-
-.running {
-    animation: run 0.8s steps(4) infinite;
-}
-
-@keyframes run {
-    0% { background-position: 0 0; }
-    100% { background-position: -480px 0; }
 }
 
 .bush {
     position: absolute;
     width: 60px;
     height: 60px;
-    bottom: 50px;
+    bottom: 50px; /* Фиксированное положение */
     right: 0;
     background-image: url('https://www.pngall.com/wp-content/uploads/10/Iceberg-Underwater-PNG-Clipart.png');
     background-size: contain;
@@ -139,7 +130,7 @@ body {
 }
 
 .jump {
-    animation: jump 0.6s cubic-bezier(0.5, 0, 0.5, 1);
+    animation: jump 0.8s cubic-bezier(0.5, 0, 0.5, 1);
 }
 
 @keyframes jump {
@@ -166,4 +157,16 @@ body {
 @keyframes nut-move {
     0% { right: -30px; }
     100% { right: 800px; }
+}
+
+.difficulty-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 14px;
+    color: #2c4a6d;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 20;
 }
