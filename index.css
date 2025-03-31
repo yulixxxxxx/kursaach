@@ -19,8 +19,8 @@ body {
 
 .game-container {
     position: relative;
-    width: 800px;
-    height: 300px;
+    width: 1000px;
+    height: 400px;
     background-color: rgba(230, 247, 255, 0.7);
     border: 5px solid #4a6fa5;
     border-radius: 10px;
@@ -31,18 +31,19 @@ body {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 50px;
+    height: 70px;
     background-color: #4682b4;
     background-image: url('https://www.pngall.com/wp-content/uploads/2016/05/Snow-PNG.png');
-    background-size: 200px 50px;
+    background-size: 250px 70px;
     background-repeat: repeat-x;
 }
 
 #squirrel {
     position: absolute;
-    width: 120px; /* Уменьшенный размер */
-    height: 68px; /* Уменьшенный размер */
-    bottom: 50px;
+    width: 100px; /* Уменьшенный размер */
+    height: 80px; /* Уменьшенный размер */
+    bottom: 70px;
+    transition: bottom 0.1s ease-out;
     left: 50px;
     background-size: contain; /* Чтобы изображение помещалось в новые размеры */
     background-repeat: no-repeat;
@@ -52,12 +53,12 @@ body {
 
 .bush {
     position: absolute;
-    width: 60px;
-    height: 60px;
-    bottom: 50px; /* Фиксированное положение */
+    width: 70px;
+    height: 40px;
+    bottom: 90px; /* Фиксированное положение */
     right: 0;
-    background-image: url('https://www.pngall.com/wp-content/uploads/10/Iceberg-Underwater-PNG-Clipart.png');
-    background-size: contain;
+    background-image: url('iceberg.png');
+    background-size: cover;
     background-repeat: no-repeat;
     z-index: 5;
 }
@@ -105,6 +106,9 @@ body {
 }
 
 #game-over {
+    width: 300px;
+    padding: 30px;
+    font-size: 20px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -130,7 +134,7 @@ body {
 }
 
 .jump {
-    animation: jump 0.8s cubic-bezier(0.5, 0, 0.5, 1);
+    transition: bottom 0.1s ease-out;
 }
 
 @keyframes jump {
@@ -169,4 +173,14 @@ body {
     padding: 10px;
     border-radius: 5px;
     z-index: 20;
+}
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
 }

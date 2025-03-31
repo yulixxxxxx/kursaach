@@ -9,15 +9,17 @@
 </head>
 <body>
     <div class="game-container">
+        <div id="track" style="position:absolute; bottom:70px; width:100%; height:5px; background:rgba(0,0,0,0.3)"></div>
 <div class="difficulty-indicator">
     Уровень: <span id="difficulty-level">1</span>
 </div>
-        <div id="game-over">
-            <h2>Игра окончена!</h2>
-            <p>Собрано орехов: <span id="final-nuts">0</span></p>
-            <p>Пройдено метров: <span id="final-meters">0</span></p>
-            <p>Нажмите пробел, чтобы начать снова</p>
-        </div>
+<div id="game-over">
+    <h2>GAME OVER</h2>
+    <p>Орехи собраны: <span id="final-nuts">0</span></p>
+    <p>Дистанция: <span id="final-meters">0</span> м</p>
+    <p>Время: <span id="final-time">0</span> сек</p>
+    <button id="restart-btn">Играть снова</button>
+</div>
         <div id="stats">
             <div>Орехи: <span id="nuts-count">0</span></div>
             <div>Метры: <span id="meters-count">0</span></div>

@@ -1,5 +1,6 @@
 // index.js
 document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('restart-btn').addEventListener('click', startGame);
     const squirrel = document.getElementById('squirrel');
     const obstaclesContainer = document.getElementById('obstacles-container');
     const nutsContainer = document.getElementById('nuts-container');
@@ -12,12 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const cloudsContainer = document.getElementById('clouds-container');
     
     let isJumping = false;
+    let jumpVelocity = 0;
     let isGameOver = false;
     let isRunning = false;
     let nutsCollected = 0;
     let metersPassed = 0;
     let secondsPassed = 0;
-    let gameSpeed = 1.0;
+    let gameSpeed = 1.3;
     let obstacleInterval;
     let nutInterval;
     let cloudInterval;
@@ -26,6 +28,68 @@ document.addEventListener('DOMContentLoaded', () => {
     let difficultyLevel = 1;
     let lastObstacles = []; // Массив для хранения времени появления последних льдин
     const MIN_OBSTACLE_INTERVAL = 1500; // Минимальный интервал между льдинами (мс) 
+    let lastObstacleTime = 0;
+    const OBSTACLE_INTERVAL = 2500; // Фиксированный интервал
+    const GRAVITY = 0.4;
+    const JUMP_POWER = 10;
+
+    function checkCollisions() {
+        if (isGameOver) return;
+        
+        const squirrelRect = {
+            left: squirrel.offsetLeft,
+            top: squirrel.offsetTop,
+            right: squirrel.offsetLeft + squirrel.offsetWidth,
+            bottom: squirrel.offsetTop + squirrel.offsetHeight
+        };
+        
+        document.querySelectorAll('.bush').forEach(obstacle => {
+            const obstacleRect = {
+                left: obstacle.offsetLeft,
+                top: obstacle.offsetTop,
+                right: obstacle.offsetLeft + obstacle.offsetWidth,
+                bottom: obstacle.offsetTop + obstacle.offsetHeight
+            };
+            
+            // Условия столкновения
+            if (
+                squirrelRect.right > obstacleRect.left + 15 &&
+                squirrelRect.left < obstacleRect.right - 15 &&
+                squirrelRect.bottom > obstacleRect.top +20 &&
+                squirrelRect.top < obstacleRect.bottom -10
+            ) {
+                gameOver();
+            }
+        });
+    }
+    
+    function gameOver() { 
+        // Устанавливаем флаг окончания игры
+        isGameOver = true;
+        
+        // Останавливаем все интервалы
+        clearInterval(obstacleInterval);
+        clearInterval(nutInterval);
+        clearInterval(cloudInterval);
+        clearInterval(gameTimer);
+        clearInterval(distanceTimer);
+        
+        // Останавливаем анимации
+        document.querySelectorAll('.obstacle-move, .nut-move').forEach(el => {
+            el.style.animationPlayState = 'paused';
+        });
+        
+        // Показываем окно GameOver
+        gameOverDisplay.style.display = 'block';
+        finalNutsDisplay.textContent = nutsCollected;
+        finalMetersDisplay.textContent = metersPassed;
+        
+        // Добавляем эффект "тряски" при проигрыше
+        document.querySelector('.game-container').classList.add('shake');
+        setTimeout(() => {
+            document.querySelector('.game-container').classList.remove('shake');
+        }, 500);
+    }
 
     function loadSquirrelSprite() {
         const img = new Image();
@@ -64,29 +128,86 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 20);
         }, 3000);
     }
-    
-    function jump() {
-        if (isJumping || isGameOver) return;
+
+    function updateGame() {
+        if (isGameOver) return;
         
-        isJumping = true;
-        squirrel.classList.add('jump');
+        // Обновление позиции белки
+        if (isJumping) {
+            jumpVelocity -= GRAVITY;
+            const currentBottom = parseFloat(squirrel.style.bottom) || 70;
+            const newBottom = currentBottom - jumpVelocity;
+            
+            // Ограничение по земле
+            if (newBottom <= 70) {
+                squirrel.style.bottom = '70px';
+                isJumping = false;
+                jumpVelocity = 0;
+            } else {
+                squirrel.style.bottom = `${newBottom}px`;
+            }
+        }
         
-        setTimeout(() => {
-            squirrel.classList.remove('jump');
-            isJumping = false;
-        }, 600);
+        requestAnimationFrame(updateGame);
     }
     
+    
+    // функция прыжка
+    function jump() {
+    if (isJumping || isGameOver) return;
+    
+    isJumping = true;
+    jumpVelocity = JUMP_POWER;
+    squirrel.classList.add('jump');
+   
+    let jumpHeight = 0;
+    const jumpUp = setInterval(() => {
+        jumpHeight += 4;
+        squirrel.style.bottom = (70 + jumpHeight) + 'px';
+       
+        if (jumpHeight > 120) {
+            clearInterval(jumpUp);
+            const fallDown = setInterval(() => {
+                jumpHeight -= 3;
+                squirrel.style.bottom = (70 + jumpHeight) + 'px';
+                
+                if (jumpHeight <= 0) {
+                    clearInterval(fallDown);
+                    isJumping = false;
+                }
+            }, 20);
+        }
+    }, 20);
+}
+ 
     function createObstacle() {
     if (isGameOver) return;
-    
+   
     const now = Date.now();
-    
+    if (now - lastObstacleTime <MIN_OBSTACLE_INTERVAL) return;
+    lastObstacleTime = now;
+    obstacle.style.height = '40px';
+    obstacle.style.bottom = '70px';
+   
     // Проверяем, когда появлялись последние льдины
     if (lastObstacles.length >= 2) {
         const timeSinceLast = now - lastObstacles[lastObstacles.length - 1];
         const timeSincePrev = now - lastObstacles[lastObstacles.length - 2];
-        
+        lastObstacleTime = now;
+        const obstacle = document.createElement('div');
+        function createObstacle() {
+            if (isGameOver) return;
+            
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('bush', 'obstacle-move');
+            obstacle.style.animationDuration = `${2500 / gameSpeed}ms`;
+            obstaclesContainer.appendChild(obstacle);
+            
+            // Удаляем препятствие, когда оно уходит за экран
+            obstacle.addEventListener('animationend', () => {
+                obstacle.remove();
+            });
+        }
         // Если две последние льдины появились слишком быстро, пропускаем создание новой
         if (timeSinceLast < MIN_OBSTACLE_INTERVAL * 0.7 || 
             timeSincePrev < MIN_OBSTACLE_INTERVAL * 1.5) {
@@ -104,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     obstacle.classList.add('bush', 'obstacle-move');
     obstacle.style.height = '60px';
     obstacle.style.bottom = '50px';
-    obstacle.style.animationDuration = `${3000 / (gameSpeed * (1 + difficultyLevel * 0.1))}ms`;
+    obstacle.style.animationDuration = `${2500 / (gameSpeed)}ms`;
     obstaclesContainer.appendChild(obstacle);
     
     const checkCollision = setInterval(() => {
@@ -132,35 +253,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 10);
 }
     
-    function createNut() {
-        if (isGameOver) return;
+function createNut() {
+    if (isGameOver) return;
+    
+    const nut = document.createElement('div');
+    nut.classList.add('nut', 'nut-move');
+    nut.style.top = `${Math.random() * 100 + 80}px`;
+    nut.style.animationDuration = `${2000 / gameSpeed}ms`;
+    nutsContainer.appendChild(nut);
+    
+    const checkCollection = setInterval(() => {
+        // Проверяем, существует ли ещё элемент nut в DOM
+        if (!document.body.contains(nut)) {
+            clearInterval(checkCollection);
+            return;
+        }
         
-        const nut = document.createElement('div');
-        nut.classList.add('nut', 'nut-move');
-        nut.style.top = `${Math.random() * 100 + 80}px`;
-        nut.style.animationDuration = `${3000 / gameSpeed}ms`;
-        nutsContainer.appendChild(nut);
+        if (isGameOver) {
+            clearInterval(checkCollection);
+            return;
+        }
         
-        const checkCollection = setInterval(() => {
-            if (isGameOver) {
-                clearInterval(checkCollection);
-                return;
-            }
-            
+        try {
             const nutRect = nut.getBoundingClientRect();
             const squirrelRect = squirrel.getBoundingClientRect();
             
             if (
-                squirrelRect.right > nutRect.left &&
-                squirrelRect.left < nutRect.right &&
-                squirrelRect.top < nutRect.bottom &&
-                squirrelRect.bottom > nutRect.top
+                squirrelRect.right > nutRect.left + 15 &&
+                squirrelRect.left < nutRect.right - 15 &&
+                squirrelRect.top < nutRect.bottom - 10 &&
+                squirrelRect.bottom > nutRect.top + 10
             ) {
                 nutsCollected++;
                 nutsCountDisplay.textContent = nutsCollected;
-                nut.remove();
                 clearInterval(checkCollection);
+                nut.remove();
                 
+                // Эффект "+1"
                 const effect = document.createElement('div');
                 effect.textContent = '+1';
                 effect.style.position = 'absolute';
@@ -184,8 +313,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(checkCollection);
                 nut.remove();
             }
-        }, 20);
-    }
+        } catch (e) {
+            clearInterval(checkCollection);
+            if (document.body.contains(nut)) {
+                nut.remove();
+            }
+        }
+    }, 50);
+}
 
     function updateTimer() {
         secondsPassed++;
@@ -199,25 +334,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function updateDistance() {
-        metersPassed += Math.floor(gameSpeed * 0,7);
+        metersPassed += Math.floor(gameSpeed);
         metersCountDisplay.textContent = metersPassed;
     }
     
     function gameOver() {
         isGameOver = true;
-        isRunning = false;
-        squirrel.classList.remove('running');
+        clearInterval(collisionInterval);
+        document.querySelectorAll('.nut').forEach(nut => nut.remove());
+        isGameOver = true;
+        clearAllIntervals();
+        console.log('игра окончена')
+        // showGameOver();
+        // stopAllAnimations();
+    }
+    
+    function clearAllIntervals() {
         clearInterval(obstacleInterval);
         clearInterval(nutInterval);
         clearInterval(cloudInterval);
         clearInterval(gameTimer);
         clearInterval(distanceTimer);
-        
-        finalNutsDisplay.textContent = nutsCollected;
-        finalMetersDisplay.textContent = metersPassed;
-        gameOverDisplay.style.display = 'block';
     }
     
+    function stopAllAnimations() {
+        document.querySelectorAll('.obstacle-move, .nut-move').forEach(el => {
+            el.style.animationPlayState = 'paused';
+        });
+    }
+
     function scheduleNutCreation() {
         if (isGameOver) return;
         
@@ -236,16 +381,20 @@ document.addEventListener('DOMContentLoaded', () => {
         isGameOver = false;
         isRunning = true;
         nutsCollected = 0;
+        nutsCountDisplay.textContent = '0';
         metersPassed = 0;
         secondsPassed = 0;
         gameSpeed = 1.0;
         difficultyLevel = 1;
-        
+        squirrel.style.bottom = '70px';
+        updateGame();
+        const collisionInterval = setInterval(checkCollisions, 20);
         nutsCountDisplay.textContent = nutsCollected;
         metersCountDisplay.textContent = metersPassed;
         timeCountDisplay.textContent = secondsPassed;
         
         gameOverDisplay.style.display = 'none';
+        document.querySelector('.game-container').classList.remove('shake');
         obstaclesContainer.innerHTML = '';
         nutsContainer.innerHTML = '';
         cloudsContainer.innerHTML = '';
@@ -256,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
         obstacleInterval = setInterval(() => {
             createObstacle();
             // Случайный интервал от 1.5 до 3 секунд
-            return Math.random() * 1500 + 1500;
+            return Math.random() * 1000;
         }, MIN_OBSTACLE_INTERVAL);
         
         // Орехи со случайным интервалом
