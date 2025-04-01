@@ -1,22 +1,45 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-document.getElementById('nuts-count').textContent = nutsCollected;
-document.getElementById('meters-count').textContent = Math.floor(distance);
-    // Элементы игры
+    const loadingScreen = document.getElementById('loading-screen');
+    const progressBar = document.querySelector('.progress');
+    const gameContainer = document.querySelector('.game-container');
+    
+    // Имитация загрузки
+    let progress = 0;
+    const loadingInterval = setInterval(() => {
+        progress += Math.random() * 10;
+        progressBar.style.width = `${Math.min(progress, 100)}%`;
+        
+        if (progress >= 100) {
+            clearInterval(loadingInterval);
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                gameContainer.style.display = 'block';
+                initGame();
+            }, 500);
+        }
+    }, 200);
+    // Добавляем стили для анимаций напрямую в CSS
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        @keyframes jump {
+            0%, 100% { bottom: 120px; }
+            50% { bottom: 300px; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+    `;
+    // Безопасное добавление стилей
+    if (document.head) {
+        document.head.appendChild(styleElement);
+    } else {
+        document.documentElement.appendChild(styleElement);
+    }
 
-    // Проверка загрузки изображений
-const images = [
-    'images/squirrel.png',
-    'images/iceberg.png',
-    'images/nut.png'
-];
-
-images.forEach(src => {
-    const img = new Image();
-    img.onload = () => console.log(`Загружено: ${src}`);
-    img.onerror = () => console.error(`Ошибка загрузки: ${src}`);
-    img.src = src;
-});
+    // Остальной код игры
     const squirrel = document.getElementById('squirrel');
     const obstaclesContainer = document.getElementById('obstacles-container');
     const nutsContainer = document.getElementById('nuts-container');
@@ -24,66 +47,42 @@ images.forEach(src => {
     const restartBtn = document.getElementById('restart-btn');
     
     // Настройки игры
-    const GAME_SPEED = 10;
+    const GAME_SPEED = 8;
     const JUMP_HEIGHT = 180;
-    const OBSTACLE_GAP = 1000;
-    const NUT_GAP = 700;
+    const OBSTACLE_GAP = 1500;
+    const NUT_GAP = 1200;
     
     let isJumping = false;
     let isGameOver = false;
     let nutsCollected = 0;
     let distance = 0;
-    let level = 1;
-    let lastObstacleTime = 0;
-    let lastNutTime = 0;
     let gameInterval;
-    let squirrelX = 100; 
-    
+    let obstacleInterval;
+    let nutInterval;
+
     // Прыжок белки
     function jump() {
         if (isJumping || isGameOver) return;
         
         isJumping = true;
-        const jumpStart = Date.now();
-        const jumpDuration = 700;
+        squirrel.style.animation = 'jump 0.6s linear';
         
-        function animateJump() {
-            if (isGameOver) return;
-            
-            const elapsed = Date.now() - jumpStart;
-            const progress = Math.min(elapsed / jumpDuration, 1);
-            const jumpProgress = Math.sin(progress * Math.PI);
-            
-            squirrel.style.bottom = `${120 + jumpProgress * JUMP_HEIGHT}px`;
-            
-            if (progress < 1) {
-                requestAnimationFrame(animateJump);
-            } else {
-                isJumping = false;
-                squirrel.style.bottom = '120px';
-            }
-        }
-        
-        animateJump();
+        setTimeout(() => {
+            squirrel.style.animation = 'none';
+            isJumping = false;
+        }, 600);
     }
 
-    function moveSquirrel() {
-        squirrelX += GAME_SPEED * 0.1;
-        squirrel.style.left = `${squirrelX}px`;
-    }
-    
     // Создание препятствий
     function createObstacle() {
-        const now = Date.now();
-        if (now - lastObstacleTime < OBSTACLE_GAP) return;
-        lastObstacleTime = now;
+        if (isGameOver) return;
         
         const obstacle = document.createElement('div');
         obstacle.className = 'obstacle';
         obstacle.style.left = '100%';
         obstaclesContainer.appendChild(obstacle);
         
-        let pos = 1000;
+        let pos = window.innerWidth;
         const moveInterval = setInterval(() => {
             if (isGameOver) {
                 clearInterval(moveInterval);
@@ -92,7 +91,7 @@ images.forEach(src => {
             
             pos -= GAME_SPEED;
             obstacle.style.left = `${pos}px`;
-            distance += 0.2;
+            distance += 0.1;
             document.getElementById('meters-count').textContent = Math.floor(distance);
             
             // Проверка столкновения
@@ -100,9 +99,9 @@ images.forEach(src => {
             const obstacleRect = obstacle.getBoundingClientRect();
             
             if (
-                squirrelRect.right > obstacleRect.left + 40 &&
-                squirrelRect.left < obstacleRect.right - 40 &&
-                squirrelRect.bottom > obstacleRect.top + 30 &&
+                squirrelRect.right > obstacleRect.left + 50 &&
+                squirrelRect.left < obstacleRect.right - 50 &&
+                squirrelRect.bottom > obstacleRect.top + 40 &&
                 !isJumping
             ) {
                 gameOver();
@@ -114,19 +113,17 @@ images.forEach(src => {
             }
         }, 20);
     }
-    
+
     // Создание орехов
     function createNut() {
-        const now = Date.now();
-        if (now - lastNutTime < NUT_GAP) return;
-        lastNutTime = now;
+        if (isGameOver) return;
         
         const nut = document.createElement('div');
         nut.className = 'nut';
         nut.style.left = '100%';
         nutsContainer.appendChild(nut);
         
-        let pos = 1000;
+        let pos = window.innerWidth;
         const moveInterval = setInterval(() => {
             if (isGameOver) {
                 clearInterval(moveInterval);
@@ -136,15 +133,15 @@ images.forEach(src => {
             pos -= GAME_SPEED;
             nut.style.left = `${pos}px`;
             
-            // Сбор орехов
+            // Проверка сбора
             const squirrelRect = squirrel.getBoundingClientRect();
             const nutRect = nut.getBoundingClientRect();
             
             if (
-                squirrelRect.right > nutRect.left + 20 &&
-                squirrelRect.left < nutRect.right - 20 &&
-                squirrelRect.bottom > nutRect.top + 10 &&
-                squirrelRect.top < nutRect.bottom - 10 &&
+                squirrelRect.right > nutRect.left + 30 &&
+                squirrelRect.left < nutRect.right - 30 &&
+                squirrelRect.bottom > nutRect.top + 20 &&
+                squirrelRect.top < nutRect.bottom - 20 &&
                 isJumping
             ) {
                 nutsCollected++;
@@ -159,60 +156,51 @@ images.forEach(src => {
             }
         }, 20);
     }
-    
+
     // Конец игры
     function gameOver() {
         isGameOver = true;
+        clearInterval(obstacleInterval);
+        clearInterval(nutInterval);
+        
         document.getElementById('final-nuts').textContent = nutsCollected;
         document.getElementById('final-meters').textContent = Math.floor(distance);
         gameOverScreen.style.display = 'block';
+        
+        // Эффект тряски
+        document.querySelector('.game-container').style.animation = 'shake 0.5s';
     }
-    
+
     // Рестарт игры
     restartBtn.addEventListener('click', () => {
         isGameOver = false;
         nutsCollected = 0;
         distance = 0;
-        level = 1;
-        squirrelX = 100
         obstaclesContainer.innerHTML = '';
         nutsContainer.innerHTML = '';
         gameOverScreen.style.display = 'none';
         document.getElementById('nuts-count').textContent = '0';
         document.getElementById('meters-count').textContent = '0';
-        document.getElementById('difficulty-level').textContent = '1';
-        quirrel.style.bottom = '120px';
-        squirrel.style.left = '100px';
+        squirrel.style.bottom = '120px';
+        squirrel.style.animation = '';
+        document.querySelector('.game-container').style.animation = '';
         startGame();
     });
-    
+
     // Управление
     document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') 
+        if (e.code === 'Space') {
+            e.preventDefault();
             jump();
-    });
-    document.addEventListener('click', jump);
-    
-    // Игровой цикл
-    function gameLoop() {
-        if (isGameOver) return;
-        
-        moveSquirrel();
-        createObstacle();
-        createNut();
-        
-        // Повышение уровня
-        if (distance > level * 150) {
-            level++;
-            document.getElementById('difficulty-level').textContent = level;
         }
-        
-        requestAnimationFrame(gameLoop);
-    }
+    });
+    
+    document.addEventListener('click', jump);
     
     // Запуск игры
     function startGame() {
-        gameInterval = requestAnimationFrame(gameLoop);
+        obstacleInterval = setInterval(createObstacle, OBSTACLE_GAP);
+        nutInterval = setInterval(createNut, NUT_GAP);
     }
     
     startGame();

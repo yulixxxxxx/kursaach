@@ -3,43 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бегущая белка</title>
+    <title>Скрат в бегах</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h1>Скрат в бегах</hа>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <p>Загрузка...</p>
+        </div>
+    </div>
+
     <div class="game-container">
-        <div class="difficulty-indicator">
-            УРОВЕНЬ: <span id="difficulty-level">1</span>
-        </div> 
         <div class="stats-container">
-            <div class="stat-box">
-                ОРЕХИ: <span id="nuts-count">0</span>
-            </div>
-            <div class="stat-box">
-                МЕТРЫ: <span id="meters-count">0</span>
-            </div>
+            <div class="stat-box">ОРЕХИ: <span id="nuts-count">0</span></div>
+            <div class="stat-box">МЕТРЫ: <span id="meters-count">0</span></div>
         </div>
         
-        <div id="game-over">...</div>
-        <div id="ground"></div>
-        <div id="squirrel"></div>
-        <div id="obstacles-container"></div>
-        <div id="nuts-container"></div>
-    </div>
         <div id="game-over">
             <h2>ИГРА ОКОНЧЕНА</h2>
             <div class="final-stats">
-                <p>Собрано орёхов: <span id="final-nuts">0</span></p>
+                <p>Собрано орехов: <span id="final-nuts">0</span></p>
                 <p>Пройдено метров: <span id="final-meters">0</span></p>
             </div>
             <button id="restart-btn">ИГРАТЬ СНОВА</button>
         </div>
         
-        <div id="ground"></div>
         <div id="squirrel"></div>
         <div id="obstacles-container"></div>
         <div id="nuts-container"></div>
+        <div id="game-over"></div>
+        <button id="restart-btn"></button>
     </div>
     <script src="index.js"></script>
 </body>
