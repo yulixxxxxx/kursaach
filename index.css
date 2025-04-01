@@ -5,25 +5,17 @@
 }
 
 body {
-    background-color: #e6f7ff;
     font-family: 'Press Start 2P', cursive;
     overflow: hidden;
-    user-select: none;
-    background-image: url('https://www.pngall.com/wp-content/uploads/10/Ice-Age-Background-PNG.png');
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
     height: 100vh;
+    user-select: none;
 }
 
 .game-container {
     position: relative;
-    width: 1000px;
-    height: 400px;
-    background-color: rgba(230, 247, 255, 0.7);
-    border: 5px solid #4a6fa5;
-    border-radius: 10px;
+    width: 100%;
+    height: 100vh;
     overflow: hidden;
 }
 
@@ -31,156 +23,85 @@ body {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 70px;
-    background-color: #4682b4;
-    background-image: url('https://www.pngall.com/wp-content/uploads/2016/05/Snow-PNG.png');
-    background-size: 250px 70px;
-    background-repeat: repeat-x;
+    height: 100px;
+    background: linear-gradient(to bottom, #a8d8ea, #7ab8d8);
+    border-top: 5px solid #d1f0ff;
 }
 
 #squirrel {
     position: absolute;
-    width: 100px; /* Уменьшенный размер */
-    height: 80px; /* Уменьшенный размер */
-    bottom: 70px;
-    transition: bottom 0.1s ease-out;
-    left: 50px;
-    background-size: contain; /* Чтобы изображение помещалось в новые размеры */
+    width: 160px;
+    height: 120px;
+    bottom: 120px;
+    left: 100px;
+    filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.3));
+    background-image: url('белка.png');
+    background-size: contain;
     background-repeat: no-repeat;
+    background-color: transparent;
     z-index: 10;
-    image-rendering: pixelated;
+    transition: bottom 0.2s ease-out;
 }
 
-.bush {
+.obstacle {
     position: absolute;
-    width: 70px;
-    height: 40px;
-    bottom: 90px; /* Фиксированное положение */
-    right: 0;
-    background-image: url('iceberg.png');
-    background-size: cover;
+    width: 140px;
+    height: 140px;
+    bottom: 120px;
+    filter: drop-shadow(2px 4px 2px rgba(0,100,150,0.5));
+    background-image: url('iseberg.png');
+    background-size: contain;
     background-repeat: no-repeat;
+    background-color: transparent;
     z-index: 5;
 }
 
 .nut {
     position: absolute;
-    width: 30px;
-    height: 30px;
-    background-image: url('https://pnggallery.com/wp-content/uploads/acorn-04.png');
+    width: 70px;
+    height: 70px;
+    bottom: 250px;
+    filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.3));
+    background-image: url('орех.png');
     background-size: contain;
     background-repeat: no-repeat;
-    z-index: 8;
+    z-index: 5;
 }
 
-#clouds-container {
+.stats-container {
     position: absolute;
-    width: 100%;
-    height: 100px;
     top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 20;
 }
 
-.cloud {
-    position: absolute;
-    width: 60px;
-    height: 30px;
-    background-image: url('https://www.pngall.com/wp-content/uploads/4/Cloud-PNG-Image-File.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.8;
-}
-
-#stats {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 14px;
-    color: #2c4a6d;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 10px;
-    border-radius: 5px;
-}
-
-#stats div {
-    margin-bottom: 5px;
-}
-
-#game-over {
-    width: 300px;
-    padding: 30px;
-    font-size: 20px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 18px;
-    color: #8b0000;
-    text-align: center;
-    display: none;
-    z-index: 100;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
+.stat-box {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-#game-over h2 {
-    margin-bottom: 15px;
-    font-size: 24px;
-}
-
-#game-over p {
-    margin: 8px 0;
-}
-
-.jump {
-    transition: bottom 0.1s ease-out;
-}
-
-@keyframes jump {
-    0% { transform: translateY(0) scaleX(1); }
-    30% { transform: translateY(-100px) scaleX(1); }
-    50% { transform: translateY(-150px) scaleX(1); }
-    80% { transform: translateY(-100px) scaleX(1); }
-    100% { transform: translateY(0) scaleX(1); }
-}
-
-.obstacle-move {
-    animation: obstacle-move linear infinite;
-}
-
-.nut-move {
-    animation: nut-move linear infinite;
-}
-
-@keyframes obstacle-move {
-    0% { right: -60px; }
-    100% { right: 800px; }
-}
-
-@keyframes nut-move {
-    0% { right: -30px; }
-    100% { right: 800px; }
+    font-size: 18px;
+    color: #2c4a6d;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    text-align: right;
+    min-width: 180px;
 }
 
 .difficulty-indicator {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 14px;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
     color: #2c4a6d;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 20;
-}
-.shake {
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
 }
 
-@keyframes shake {
-    10%, 90% { transform: translateX(-1px); }
-    20%, 80% { transform: translateX(2px); }
-    30%, 50%, 70% { transform: translateX(-4px); }
-    40%, 60% { transform: translateX(4px); }
+@keyframes jump {
+    0%, 100% { bottom: 100px; }
+    50% { bottom: 280px; }
 }
