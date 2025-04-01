@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
                 gameContainer.style.display = 'block';
-                initGame();
+             initGame();
             }, 500);
         }
     }, 200);
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Настройки игры
     const GAME_SPEED = 8;
-    const JUMP_HEIGHT = 180;
+    const JUMP_HEIGHT = 220;
     const OBSTACLE_GAP = 1500;
     const NUT_GAP = 1200;
     
@@ -72,6 +72,28 @@ document.addEventListener('DOMContentLoaded', () => {
             isJumping = false;
         }, 600);
     }
+
+    function createIceFloes() {
+        const groundWidth = window.innerWidth;
+        const floeCount = Math.floor(groundWidth / 150); // Примерно 1 льдина на каждые 150px
+        
+        for (let i = 0; i < floeCount; i++) {
+            const floe = document.createElement('div');
+            floe.className = 'ice-floe';
+            
+            // Случайные параметры льдины
+            const width = Math.random() * 100 + 50; // Ширина от 50 до 150px
+            const left = Math.random() * groundWidth;
+            
+            floe.style.width = `${width}px`;
+            floe.style.left = `${left}px`;
+            
+            document.querySelector('.game-container').appendChild(floe);
+        }
+    }
+    
+    // Вызовите эту функцию при старте игры
+    createIceFloes();
 
     // Создание препятствий
     function createObstacle() {

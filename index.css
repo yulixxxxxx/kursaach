@@ -63,20 +63,26 @@ body {
 
 /* Остальные стили игры остаются без изменений */
 
-#ground {
+#snow-platform::before {
+    content: "";
     position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(to bottom, #a8d8ea, #7ab8d8);
-    border-top: 5px solid #d1f0ff;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgb(38, 135, 148) 2px, transparent 3px),
+        radial-gradient(circle at 60% 70%, white 2px, transparent 3px),
+        radial-gradient(circle at 40% 20%, white 3px, transparent 4px);
+    background-size: 50px 50px;
+    opacity: 0.8;
 }
 
 #squirrel {
     position: absolute;
-    width: 180px;
-    height: 140px;
-    bottom: 120px;
+    width: 238px;
+    height: 138px;
+    bottom: 140px;
     left: 100px;
     filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.3));
     background-image: url('белка.png');
@@ -90,9 +96,9 @@ body {
 
 .obstacle {
     position: absolute;
-    width: 150px;
-    height: 150px;
-    bottom: 120px;
+    width: 200px;
+    height: 200px;
+    bottom: 140px;
     filter: drop-shadow(2px 4px 2px rgba(0,100,150,0.5));
     background-image: url('iseberg.png');
     background-size: contain;
@@ -104,9 +110,9 @@ body {
 
 .nut {
     position: absolute;
-    width: 70px;
-    height: 70px;
-    bottom: 280px;
+    width: 80px;
+    height: 100px;
+    bottom: 300px;
     filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.3));
     background-image: url('орех.png');
     background-size: contain;
