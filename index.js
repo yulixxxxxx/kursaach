@@ -73,69 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 600);
     }
 
-    function createIceFloes() {
-        const groundWidth = window.innerWidth;
-        const floeCount = Math.floor(groundWidth / 150); // Примерно 1 льдина на каждые 150px
-        
-        for (let i = 0; i < floeCount; i++) {
-            const floe = document.createElement('div');
-            floe.className = 'ice-floe';
-            
-            // Случайные параметры льдины
-            const width = Math.random() * 100 + 50; // Ширина от 50 до 150px
-            const left = Math.random() * groundWidth;
-            
-            floe.style.width = `${width}px`;
-            floe.style.left = `${left}px`;
-            
-            document.querySelector('.game-container').appendChild(floe);
-        }
-    }
-    
-    // Вызовите эту функцию при старте игры
-    createIceFloes();
-
-    // Создание препятствий
-    function createObstacle() {
-        if (isGameOver) return;
-        
-        const obstacle = document.createElement('div');
-        obstacle.className = 'obstacle';
-        obstacle.style.left = '100%';
-        obstaclesContainer.appendChild(obstacle);
-        
-        let pos = window.innerWidth;
-        const moveInterval = setInterval(() => {
-            if (isGameOver) {
-                clearInterval(moveInterval);
-                return;
-            }
-            
-            pos -= GAME_SPEED;
-            obstacle.style.left = `${pos}px`;
-            distance += 0.1;
-            document.getElementById('meters-count').textContent = Math.floor(distance);
-            
-            // Проверка столкновения
-            const squirrelRect = squirrel.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
-            
-            if (
-                squirrelRect.right > obstacleRect.left + 50 &&
-                squirrelRect.left < obstacleRect.right - 50 &&
-                squirrelRect.bottom > obstacleRect.top + 40 &&
-                !isJumping
-            ) {
-                gameOver();
-            }
-            
-            if (pos < -200) {
-                clearInterval(moveInterval);
-                obstacle.remove();
-            }
-        }, 20);
-    }
-
     // Создание орехов
     function createNut() {
         if (isGameOver) return;
