@@ -21,11 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const PLATFORM_HEIGHT = 150;
     const METERS_SPEED = 0.05;
 
+    let isNightMode = false;
+    let lastTransitionMeters = 0;
     let isJumping = false;
     let isGameOver = false;
     let nutsCollected = 0;
     let distance = 0;
     let nutInterval;
+
 
     // ===== Функция проверки столкновений =====
     function checkCollisions() {
@@ -145,10 +148,90 @@ document.addEventListener('DOMContentLoaded', () => {
         
         distance += METERS_SPEED;
         metersCount.textContent = Math.floor(distance);
+
+        // Проверка смены дня и ночи
+    checkDayNightTransition();
+
+         // Активация ночного режима при 500 метрах
+    if (distance >= 500 && !isNightMode) {
+        activateNightMode();
+        isNightMode = true;
+    }
         
         checkCollisions();
         requestAnimationFrame(gameLoop);
     }
+
+    function checkDayNightTransition() {
+        const currentMeters = Math.floor(distance);
+        
+        // Массив с точками перехода 
+        const transitions = [
+            [500, true],   // 500м → ночь
+            [700, false],  // 700м → день
+            [1000, true],  // 1000м → ночь
+            [1400, false], // 1400м → день
+            [1700, true],  // 1700м → ночь
+            [2000, false]  // 2000м → день
+        ];
+        
+        // Проверяем все переходы
+        for (const [meters, shouldBeNight] of transitions) {
+            if (currentMeters >= meters && lastTransitionMeters < meters) {
+                if (shouldBeNight !== isNightMode) {
+                    toggleDayNight();
+                }
+                lastTransitionMeters = meters;
+                break;
+            }
+        }
+    }
+
+    function toggleDayNight() {
+        isNightMode = !isNightMode;
+        const nightOverlay = document.getElementById('night-overlay');
+        
+        if (isNightMode) {
+            nightOverlay.classList.add('night-mode');
+            document.body.classList.add('night-mode');
+            createStars();
+        } else {
+            nightOverlay.classList.remove('night-mode');
+            document.body.classList.remove('night-mode');
+            clearStars();
+        }
+    }
+
+
+    function activateNightMode() {
+        const nightOverlay = document.getElementById('night-overlay');
+        nightOverlay.classList.add('night-mode');
+        document.body.classList.add('night-mode');
+        
+        // Можно добавить дополнительные эффекты, например, звезды
+        createStars();
+    }
+
+    function createStars() {
+        const nightOverlay = document.getElementById('night-overlay');
+        nightOverlay.innerHTML = '';
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.width = `${Math.random() * 3 + 1}px`;
+            star.style.height = star.style.width;
+            star.style.opacity = Math.random();
+            star.style.animationDelay = `${Math.random() * 5}s`;
+            nightOverlay.appendChild(star);
+        }
+    }
+    // Функция очистки звезд
+function clearStars() {
+    const nightOverlay = document.getElementById('night-overlay');
+    nightOverlay.innerHTML = '';
+}
 
     // ===== Прыжок =====
     function jump() {
@@ -178,8 +261,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Запуск игры =====
     function startGame() {
         isGameOver = false;
+        isNightMode = false;
+        lastTransitionMeters = 0;
         nutsCollected = 0;
         distance = 0;
+
+        // Сброс ночного режима
+    document.getElementById('night-overlay').classList.remove('night-mode');
+    document.body.classList.remove('night-mode');
+    document.getElementById('night-overlay').innerHTML = '';
+    clearStars();
         
         obstaclesContainer.innerHTML = '';
         nutsContainer.innerHTML = '';
