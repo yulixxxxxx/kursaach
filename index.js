@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const metersCount = document.getElementById('meters-count');
     const finalNuts = document.getElementById('final-nuts');
     const finalMeters = document.getElementById('final-meters');
+    const recordMetersElement = document.getElementById('record-meters');
+    const finalRecordElement = document.getElementById('final-record')
 
     // ===== Настройки игры =====
     const GAME_SPEED = 12;
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let nutsCollected = 0;
     let distance = 0;
     let nutInterval;
+    let recordMeters = localStorage.getItem('squirrelRecord') || 0;
 
 
     // ===== Функция проверки столкновений =====
@@ -250,6 +253,11 @@ function clearStars() {
     function gameOver() {
         isGameOver = true;
         clearInterval(nutInterval);
+
+        if (distance > recordMeters) {
+            recordMeters = distance;
+            localStorage.setItem('squirrelRecord', recordMeters);
+        }
         
         finalNuts.textContent = nutsCollected;
         finalMeters.textContent = Math.floor(distance);
@@ -280,6 +288,7 @@ function clearStars() {
         
         metersCount.textContent = '0';
         nutsCount.textContent = '0';
+        recordMetersElement.textContent = Math.floor(recordMeters);
         
         gameContainer.style.animation = '';
         gameOverScreen.style.display = 'none';
@@ -295,6 +304,9 @@ function clearStars() {
         if (!loadingScreen || !progressBar || !gameContainer) {
             console.error("Не найдены необходимые элементы!");
             return;
+            recordMetersElement.textContent = Math.floor(recordMeters);
+            finalRecordElement.textContent = Math.floor(recordMeters);
+
         }
 
         // Анимация загрузки
@@ -326,7 +338,31 @@ function clearStars() {
         }
     });
     
+
+    document.addEventListener('click', jump);
+
+    restartBtn.addEventListener('click', startGame);
+        // Управление
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            jump();
+        }
+    });
+    
     document.addEventListener('click', jump);
     
     restartBtn.addEventListener('click', startGame);
+    
+    // Добавьте обработчик для кнопки сброса рекорда
+    const resetRecordBtn = document.getElementById('reset-record-btn');
+    if (resetRecordBtn) {
+        resetRecordBtn.addEventListener('click', () => {
+            recordMeters = 0;
+            localStorage.setItem('squirrelRecord', 0);
+            document.getElementById('record-meters').textContent = '0';
+            document.getElementById('final-record').textContent = '0';
+        });
+    }
+
 });
