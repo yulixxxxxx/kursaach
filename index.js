@@ -28,94 +28,57 @@ document.addEventListener('DOMContentLoaded', () => {
     let nutInterval;
 
     // ===== Функция проверки столкновений =====
-   // ===== Функция проверки столкновений =====
-function checkCollisions() {
-    const squirrelRect = squirrel.getBoundingClientRect();
-    
-    // Проверка столкновений с айсбергами
-    document.querySelectorAll('.obstacle').forEach(obstacle => {
-        const obstacleRect = obstacle.getBoundingClientRect();
+    function checkCollisions() {
+        const squirrelRect = squirrel.getBoundingClientRect();
         
-        if (
-            squirrelRect.right > obstacleRect.left + 50 &&
-            squirrelRect.left < obstacleRect.right - 50 &&
-            squirrelRect.bottom > obstacleRect.top + 40 &&
-            !isJumping
-        ) {
-            gameOver();
-        }
-    });
-    
-    // Проверка сбора орехов (опционально, можно оставить в отдельной функции)
-    document.querySelectorAll('.nut').forEach(nut => {
-        if (checkNutCollection(nut)) {
-            nutsCollected++;
-            nutsCount.textContent = nutsCollected;
-            nut.remove();
-        }
-    });
-}
+        // Проверка столкновений с айсбергами
+        document.querySelectorAll('.obstacle').forEach(obstacle => {
+            const obstacleRect = obstacle.getBoundingClientRect();
+            
+            if (
+                squirrelRect.right > obstacleRect.left + 50 &&
+                squirrelRect.left < obstacleRect.right - 50 &&
+                squirrelRect.bottom > obstacleRect.top + 40 &&
+                !isJumping
+            ) {
+                gameOver();
+            }
+        });
+        
+        // Проверка сбора орехов
+        document.querySelectorAll('.nut').forEach(nut => {
+            if (checkNutCollection(nut)) {
+                nutsCollected++;
+                nutsCount.textContent = nutsCollected;
+                nut.remove();
+            }
+        });
+    }
 
     // ===== Проверка сбора орехов =====
-function checkNutCollection(nut) {
-    const squirrelRect = squirrel.getBoundingClientRect();
-    const nutRect = nut.getBoundingClientRect();
-    
-    return (
-        squirrelRect.right > nutRect.left + 30 &&
-        squirrelRect.left < nutRect.right - 30 &&
-        squirrelRect.bottom > nutRect.top + 20 &&
-        squirrelRect.top < nutRect.bottom - 20 &&
-        isJumping
-    );
-}
+    function checkNutCollection(nut) {
+        const squirrelRect = squirrel.getBoundingClientRect();
+        const nutRect = nut.getBoundingClientRect();
+        
+        return (
+            squirrelRect.right > nutRect.left + 30 &&
+            squirrelRect.left < nutRect.right - 30 &&
+            squirrelRect.bottom > nutRect.top + 20 &&
+            squirrelRect.top < nutRect.bottom - 20 &&
+            isJumping
+        );
+    }
 
     // ===== Генерация айсбергов =====
     function obstacleLoop() {
         if (isGameOver) return;
-         const obstacle = document.createElement('div');
-        obstacle.className = 'obstacle';
-        obstacle.style.width = '220px';
-        obstacle.style.height = '220px';
-        obstacle.style.left = `${window.innerWidth}px`;
-        obstacle.style.bottom = `${PLATFORM_HEIGHT}px`;
-        
-        obstaclesContainer.appendChild(obstacle);
-
-        const moveInterval = setInterval(() => {
-            if (isGameOver) {
-                clearInterval(moveInterval);
-                return;
-            }
-
-            const currentLeft = parseInt(obstacle.style.left);
-            obstacle.style.left = `${currentLeft - GAME_SPEED}px`;
-
-            // Проверка столкновения
-            if (checkCollision(squirrel, obstacle) && !isJumping) {
-                gameOver();
-                clearInterval(moveInterval);
-            }
-
-            if (currentLeft < -220) {
-                clearInterval(moveInterval);
-                obstacle.remove();
-            }
-        }, 16);
-
-        createObstacle();
-        setTimeout(obstacleLoop, OBSTACLE_GAP);
-    }
-
-    function createObstacle() {
-        if (isGameOver) return;
-
         const obstacle = document.createElement('div');
         obstacle.className = 'obstacle';
         obstacle.style.width = '220px';
         obstacle.style.height = '220px';
         obstacle.style.left = `${window.innerWidth}px`;
         obstacle.style.bottom = `${PLATFORM_HEIGHT}px`;
+        
         obstaclesContainer.appendChild(obstacle);
 
         const moveInterval = setInterval(() => {
@@ -127,49 +90,54 @@ function checkNutCollection(nut) {
             const currentLeft = parseInt(obstacle.style.left);
             obstacle.style.left = `${currentLeft - GAME_SPEED}px`;
 
+            // Проверка столкновения с помощью checkCollisions
+            checkCollisions();
+
             if (currentLeft < -220) {
                 clearInterval(moveInterval);
                 obstacle.remove();
             }
         }, 16);
+
+        setTimeout(obstacleLoop, OBSTACLE_GAP);
     }
 
     // ===== Генерация орехов =====
-function createNut() {
-    if (isGameOver) return;
+    function createNut() {
+        if (isGameOver) return;
 
-    const nut = document.createElement('div');
-    nut.className = 'nut';
-    nut.style.width = '80px';
-    nut.style.height = '80px';
-    nut.style.left = `${window.innerWidth}px`;
-    nut.style.bottom = `${PLATFORM_HEIGHT + 150}px`; // Чуть выше платформы
-    
-    nutsContainer.appendChild(nut);
+        const nut = document.createElement('div');
+        nut.className = 'nut';
+        nut.style.width = '80px';
+        nut.style.height = '80px';
+        nut.style.left = `${window.innerWidth}px`;
+        nut.style.bottom = `${PLATFORM_HEIGHT + 150}px`; // Чуть выше платформы
+        
+        nutsContainer.appendChild(nut);
 
-    const moveInterval = setInterval(() => {
-        if (isGameOver) {
-            clearInterval(moveInterval);
-            return;
-        }
+        const moveInterval = setInterval(() => {
+            if (isGameOver) {
+                clearInterval(moveInterval);
+                return;
+            }
 
-        const currentLeft = parseInt(nut.style.left);
-        nut.style.left = `${currentLeft - GAME_SPEED}px`;
+            const currentLeft = parseInt(nut.style.left);
+            nut.style.left = `${currentLeft - GAME_SPEED}px`;
 
-        // Проверка сбора ореха
-        if (checkNutCollection(nut)) {
-            nutsCollected++;
-            nutsCount.textContent = nutsCollected;
-            clearInterval(moveInterval);
-            nut.remove();
-        }
+            // Проверка сбора ореха
+            if (checkNutCollection(nut)) {
+                nutsCollected++;
+                nutsCount.textContent = nutsCollected;
+                clearInterval(moveInterval);
+                nut.remove();
+            }
 
-        if (currentLeft < -80) {
-            clearInterval(moveInterval);
-            nut.remove();
-        }
-    }, 16);
-}
+            if (currentLeft < -80) {
+                clearInterval(moveInterval);
+                nut.remove();
+            }
+        }, 16);
+    }
 
     // ===== Игровой цикл =====
     function gameLoop() {
@@ -226,7 +194,7 @@ function createNut() {
         gameOverScreen.style.display = 'none';
         
         requestAnimationFrame(gameLoop);
-        nutInterval = setInterval(createNut, NUT_GAP); // Добавлено создание орехов
+        nutInterval = setInterval(createNut, NUT_GAP);
         obstacleLoop();
     }
 
