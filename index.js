@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalRecordElement = document.getElementById('final-record')
 
     // ===== Настройки игры =====
+    const NIGHT_MODE_OPACITY = 0.5;
     const GAME_SPEED = 12;
     const JUMP_HEIGHT = 250;
     const OBSTACLE_GAP = 1000;
@@ -151,15 +152,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         distance += METERS_SPEED;
         metersCount.textContent = Math.floor(distance);
+// Проверка смены дня и ночи (только на 500м ночь, на 700м день)
+if (distance >= 300 && distance < 500 && !isNightMode) {
+    activateNightMode();
+} 
+else if (distance >= 500 && isNightMode) {
+    deactivateNightMode();
+}
 
-        // Проверка смены дня и ночи
-    checkDayNightTransition();
+// Обновление рекорда в реальном времени
+if (distance > recordMeters) {
+    recordMeters = distance;
+    recordMetersElement.textContent = Math.floor(recordMeters);
+    localStorage.setItem('squirrelRecord', recordMeters);
 
-         // Активация ночного режима при 500 метрах
-    if (distance >= 500 && !isNightMode) {
-        activateNightMode();
-        isNightMode = true;
-    }
+    
+}
         
         checkCollisions();
         requestAnimationFrame(gameLoop);
@@ -207,12 +215,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function activateNightMode() {
+        isNightMode = true;
         const nightOverlay = document.getElementById('night-overlay');
-        nightOverlay.classList.add('night-mode');
+        nightOverlay.style.opacity = NIGHT_MODE_OPACITY;
         document.body.classList.add('night-mode');
-        
-        // Можно добавить дополнительные эффекты, например, звезды
         createStars();
+    }
+    
+    function deactivateNightMode() {
+        isNightMode = false;
+        const nightOverlay = document.getElementById('night-overlay');
+        nightOverlay.style.opacity = '0';
+        document.body.classList.remove('night-mode');
+        clearStars();
     }
 
     function createStars() {
@@ -296,6 +311,7 @@ function clearStars() {
         requestAnimationFrame(gameLoop);
         nutInterval = setInterval(createNut, NUT_GAP);
         obstacleLoop();
+        deactivateNightMode(); 
     }
 
     // ===== Инициализация =====
